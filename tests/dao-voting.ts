@@ -56,7 +56,17 @@ describe('dao-voting', () => {
   it('Fetches all proposals', async () => {
 
     // Fetch all proposal accounts
-    const proposals = await program.account.proposal.all();
+    const allProposal = await program.account.proposal.all();
+    const proposals = allProposal.map((proposal) => ({
+      title: proposal.account.title.toString(),
+      description: proposal.account.description.toString(),
+      votesFor: proposal.account.votesFor.toString(),
+      votesAgainst: proposal.account.votesAgainst.toString(),
+      votesAbstain: proposal.account.votesAbstain.toString(),
+      point: proposal.account.point
+    }));
+
+      
     console.log(proposals)
 
   });
@@ -71,9 +81,9 @@ describe('dao-voting', () => {
     try {
     // Cast a vote for the proposal for 
     // Voting "For" { for: {} } , "Against" { against: {} } , "Abstain" { abstain: {} } 
-    await program.methods.vote({ for: {} }) // Voting "For"
+    await program.methods.vote({ against: {} }) // Voting "For"
       .accounts({
-        proposal: proposals[0].publicKey,
+        proposal: proposals[1].publicKey,
         voter: voterPDA,
         user: provider.wallet.publicKey,
         systemProgram: anchor.web3.SystemProgram.programId,
@@ -83,11 +93,11 @@ describe('dao-voting', () => {
     
 
     // Fetch the updated proposal account
-    const updatedProposalAccount = await program.account.proposal.fetch(proposals[0].publicKey);
+    const updatedProposalAccount = await program.account.proposal.fetch(proposals[1].publicKey);
     // const updatedvoteAccount = await program.account.voter.all();
 
     // console.log(updatedvoteAccount)
-    console.log(updatedProposalAccount.votesFor.toNumber())
+    console.log(updatedProposalAccount.votesAgainst.toNumber())
     } catch (error) {
       // Check transaction logs for "already in use" message
     const transactionLogs = error.transactionLogs || [];
