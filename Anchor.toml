@@ -1,0 +1,24 @@
+[toolchain]
+
+[features]
+seeds = false
+skip-lint = false
+
+[programs.devnet]
+dao_voting = "tePm5Z6oFWmFcPNkbm1t86Ki7SpCm2Qq7Da9uTPM1GZ"
+
+[programs.localnet]
+dao_voting = "tePm5Z6oFWmFcPNkbm1t86Ki7SpCm2Qq7Da9uTPM1GZ"
+
+[programs.mainnet]
+dao_voting = "tePm5Z6oFWmFcPNkbm1t86Ki7SpCm2Qq7Da9uTPM1GZ"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "devnet"
+wallet = "/home/xpsolitesol/PsoZSQhHg7USeEx8qQLKNhjXARH1XBUj8iGDNp5Y22V.json"
+
+[scripts]
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
