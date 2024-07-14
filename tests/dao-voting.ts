@@ -11,7 +11,7 @@ describe('dao-voting', () => {
   anchor.setProvider(provider);
 
   const program = anchor.workspace.DaoVoting as Program<DaoVoting>;
-  
+
 
   // Creates a new proposal
   it('Creates a new proposal', async () => {
@@ -31,9 +31,9 @@ describe('dao-voting', () => {
     console.log(proposalPDA)
 
     // Define the title and description of the proposal
-    const title = "Test Proposal Title";
-    const description = "Test Proposal Description";
-    const point = 10;
+    const title = "Do you like him";
+    const description = "Your vote will help";
+    const point = 92;
     // console.log(proposalPDA)
 
     // Call the createProposal function
@@ -52,7 +52,8 @@ describe('dao-voting', () => {
 
     console.log('Proposal created successfully:', proposalAccount);
   });
-  
+
+
   it('Fetches all proposals', async () => {
 
     // Fetch all proposal accounts
@@ -65,81 +66,93 @@ describe('dao-voting', () => {
       votesAbstain: proposal.account.votesAbstain.toString(),
       point: proposal.account.point
     }));
-
-      
     console.log(proposals)
-
   });
 
+
   it("Votes on a proposal", async () => {
-    // Fetch all proposal accounts
+
     const proposals = await program.account.proposal.all();
+    const proposal = proposals[4]
+
+    // VoterPDA
     const [voterPDA, _bump] = PublicKey.findProgramAddressSync(
-      [Buffer.from("voter"), provider.wallet.publicKey.toBuffer(), proposals[0].publicKey.toBuffer()],
+      [Buffer.from("voter"), provider.wallet.publicKey.toBuffer(), proposal.publicKey.toBuffer()],
       program.programId
     );
+
     try {
-    // Cast a vote for the proposal for 
-    // Voting "For" { for: {} } , "Against" { against: {} } , "Abstain" { abstain: {} } 
-    await program.methods.vote({ against: {} }) // Voting "For"
-      .accounts({
-        proposal: proposals[1].publicKey,
-        voter: voterPDA,
-        user: provider.wallet.publicKey,
-        systemProgram: anchor.web3.SystemProgram.programId,
-      })
-      .rpc();
+      // Cast a vote for the proposal for 
+      // Voting "For" { for: {} } , "Against" { against: {} } , "Abstain" { abstain: {} } 
+      await program.methods.vote({ against: {} }) // Voting "For"
+        .accounts({
+          proposal: proposal.publicKey,
+          voter: voterPDA,
+          user: provider.wallet.publicKey,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .rpc();
 
-    
+      // Fetch the updated proposal account
+      const { 
+        title, description, votesFor, votesAgainst, votesAbstain, point 
+      } = await program.account.proposal.fetch(proposal.publicKey);
 
-    // Fetch the updated proposal account
-    const updatedProposalAccount = await program.account.proposal.fetch(proposals[1].publicKey);
-    // const updatedvoteAccount = await program.account.voter.all();
+      const votedProposal = {
+        title: title.toString(),
+        description: description.toString(),
+        votesFor: votesFor.toString(),
+        votesAgainst: votesAgainst.toString(),
+        votesAbstain: votesAbstain.toString(),
+        point: point
+      }
+      // console.log(updatedvoteAccount)
+      console.log(votedProposal)
 
-    // console.log(updatedvoteAccount)
-    console.log(updatedProposalAccount.votesAgainst.toNumber())
     } catch (error) {
       // Check transaction logs for "already in use" message
-    const transactionLogs = error.transactionLogs || [];
-    const alreadyVotedMessage = transactionLogs.some(log => 
+      const transactionLogs = error.transactionLogs || [];
+      const alreadyVotedMessage = transactionLogs.some(log =>
         log.includes("already in use")
+      );
+
+      if (alreadyVotedMessage) {
+        console.error("Error: You have already voted on this proposal.");
+      } else {
+        console.error("An unexpected error occurred:", error);
+      }
+    }
+  });
+
+
+  it("User Total Reward", async () => {
+    // Fetch all voter accounts
+    const voterAccounts = await program.account.voter.all();
+
+    // Fetch all proposal accounts
+    const proposals = await program.account.proposal.all();
+
+    // Initialize total reward points
+    let totalRewardPoints = 0;
+
+    // Filter voter accounts to only include those that belong to the current user
+    const userVoterAccounts = voterAccounts.filter(voter =>
+      voter.account.user.equals(provider.wallet.publicKey)
     );
 
-    if (alreadyVotedMessage) {
-        console.error("Error: You have already voted on this proposal.");
-    } else {
-        console.error("An unexpected error occurred:", error);
-    }
-    }
-    });
-    it("User Total Reward", async () => {
-      // Fetch all voter accounts
-      const voterAccounts = await program.account.voter.all();
-      
-      // Fetch all proposal accounts
-      const proposals = await program.account.proposal.all();
-    
-      // Initialize total reward points
-      let totalRewardPoints = 0;
-    
-      // Filter voter accounts to only include those that belong to the current user
-      const userVoterAccounts = voterAccounts.filter(voter => 
-        voter.account.user.equals(provider.wallet.publicKey)
+    // Iterate over the user's voter accounts
+    for (const voter of userVoterAccounts) {
+      // Find the corresponding proposal
+      const proposal = proposals.find(proposal =>
+        proposal.publicKey.equals(voter.account.proposal)
       );
-    
-      // Iterate over the user's voter accounts
-      for (const voter of userVoterAccounts) {
-        // Find the corresponding proposal
-        const proposal = proposals.find(proposal => 
-          proposal.publicKey.equals(voter.account.proposal)
-        );
-    
-        // If the proposal exists, add its points to the total reward points
-        if (proposal) {
-          totalRewardPoints += proposal.account.point;
-        }
+
+      // If the proposal exists, add its points to the total reward points
+      if (proposal) {
+        totalRewardPoints += proposal.account.point;
       }
-    
-      console.log(`Total reward points for user ${provider.wallet.publicKey.toBase58()}:`, totalRewardPoints);
-    });
+    }
+
+    console.log(`Total reward points for user ${provider.wallet.publicKey.toBase58()}:`, totalRewardPoints);
+  });
 });
