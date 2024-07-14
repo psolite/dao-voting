@@ -13,6 +13,7 @@ describe('dao-voting', () => {
   const program = anchor.workspace.DaoVoting as Program<DaoVoting>;
   
 
+  // Creates a new proposal
   it('Creates a new proposal', async () => {
 
     // Generate a unique proposal ID ( timestamp)
@@ -56,7 +57,7 @@ describe('dao-voting', () => {
 
     // Fetch all proposal accounts
     const proposals = await program.account.proposal.all();
-    console.log(proposals.length)
+    console.log(proposals)
 
   });
 
@@ -100,5 +101,35 @@ describe('dao-voting', () => {
         console.error("An unexpected error occurred:", error);
     }
     }
+    });
+    it("User Total Reward", async () => {
+      // Fetch all voter accounts
+      const voterAccounts = await program.account.voter.all();
+      
+      // Fetch all proposal accounts
+      const proposals = await program.account.proposal.all();
+    
+      // Initialize total reward points
+      let totalRewardPoints = 0;
+    
+      // Filter voter accounts to only include those that belong to the current user
+      const userVoterAccounts = voterAccounts.filter(voter => 
+        voter.account.user.equals(provider.wallet.publicKey)
+      );
+    
+      // Iterate over the user's voter accounts
+      for (const voter of userVoterAccounts) {
+        // Find the corresponding proposal
+        const proposal = proposals.find(proposal => 
+          proposal.publicKey.equals(voter.account.proposal)
+        );
+    
+        // If the proposal exists, add its points to the total reward points
+        if (proposal) {
+          totalRewardPoints += proposal.account.point;
+        }
+      }
+    
+      console.log(`Total reward points for user ${provider.wallet.publicKey.toBase58()}:`, totalRewardPoints);
     });
 });

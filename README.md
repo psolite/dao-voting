@@ -16,9 +16,8 @@ Reward points to users for voting participation.
 
 # A guild to use this DAO Voting Program 
 
-It's Function, allows user to create Proposal
+This DAO Voting Program  allows user to create Proposal
 
-The proposal must have Title, Description and Points (reward)
 
 # How to Install 
 To install this you much have Solana and anchor already installed 
@@ -62,6 +61,19 @@ wallet = "/home/psolite/id.json"
 
 You can now Use the program.
 
+# To Test
+In the /tests/dao-voting.ts
+The Test is Divided into 4 Parts
+
+1/ Creates a new proposal -  is the first test where user creates Proposal by providing
+Title, description and point (Reward)
+
+2/ Fetches all proposals -  to get all proposals created
+
+3/ Votes on a proposal - to vote on a proposal,for test proposals I call one of the proposal with proposals[0] to get one, you can use another number depending on how many proposal you created and to vote you pass this depending on your option: For = { for: {} } , Against = { against: {} } , Abstain = { abstain: {} }
+
+4/ User Total Reward - get user total point 
+
 for any correction(i am open the learn) or help
 you can reach out to me on X(twitter) @0xpsoliteSol
 
@@ -69,3 +81,6 @@ you can reach out to me on X(twitter) @0xpsoliteSol
 1/ Closing Date of a Proposal
 2/ Where user can Create Options 
 3/ Front end sample  
+you can comment you option to make advance the program
+
+# SOLANA IS THE FUTURE

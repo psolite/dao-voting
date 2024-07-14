@@ -17,7 +17,7 @@ dao_voting = "tePm5Z6oFWmFcPNkbm1t86Ki7SpCm2Qq7Da9uTPM1GZ"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "devnet"
+cluster = "localnet"
 wallet = "/home/xpsolitesol/PsoZSQhHg7USeEx8qQLKNhjXARH1XBUj8iGDNp5Y22V.json"
 
 [scripts]
