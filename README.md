@@ -74,8 +74,11 @@ Title, description and point (Reward)
 
 4/ User Total Reward - get user total point 
 
+5/ run `anchor test --skip-local-validator` (use the flag if you have open local validator)
+
 for any correction(i am open the learn) or help
 you can reach out to me on X(twitter) @0xpsoliteSol
+
 
 # There will be new updates on this , where i will be adding freatures like:
 1/ Closing Date of a Proposal
